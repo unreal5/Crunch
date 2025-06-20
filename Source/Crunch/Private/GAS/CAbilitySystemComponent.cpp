@@ -4,33 +4,17 @@
 #include "CAbilitySystemComponent.h"
 
 
-// Sets default values for this component's properties
-UCAbilitySystemComponent::UCAbilitySystemComponent()
+
+void UCAbilitySystemComponent::ApplyInitialEffects()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
+	// 只在服务器上应用初始效果
+	if (!GetOwner() || !GetOwner()->HasAuthority()) return;
 
-	// ...
+
+	for (TSubclassOf<UGameplayEffect>& EffectClass : InitialEffects)
+	{
+		FGameplayEffectContextHandle EffectContext = MakeEffectContext();
+		FGameplayEffectSpecHandle EffectSpecHandle = MakeOutgoingSpec(EffectClass, 1.0f, EffectContext);
+		ApplyGameplayEffectSpecToSelf(*EffectSpecHandle.Data);
+	}
 }
-
-
-// Called when the game starts
-void UCAbilitySystemComponent::BeginPlay()
-{
-	Super::BeginPlay();
-
-	// ...
-	
-}
-
-
-// Called every frame
-void UCAbilitySystemComponent::TickComponent(float DeltaTime, ELevelTick TickType,
-                                             FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// ...
-}
-

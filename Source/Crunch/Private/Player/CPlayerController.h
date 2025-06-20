@@ -13,4 +13,16 @@ UCLASS()
 class CRUNCH_API ACPlayerController : public APlayerController
 {
 	GENERATED_BODY()
+
+public:
+	// 只在客户端上才会调用
+	virtual void AcknowledgePossession(APawn* P) override;
+
+protected:
+	// 只在服务器上才会调用
+	virtual void OnPossess(APawn* aPawn) override;
+
+private:
+	UPROPERTY()
+	class ACPlayerCharacter* CPlayerCharacter;
 };
