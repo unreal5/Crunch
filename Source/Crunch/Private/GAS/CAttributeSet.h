@@ -18,17 +18,31 @@ class CRUNCH_API UCAttributeSet : public UAttributeSet
 {
 	GENERATED_BODY()
 public:
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	
 	ATTRIBUTE_ACCESSORS(ThisClass, Health)
 	ATTRIBUTE_ACCESSORS(ThisClass, MaxHealth)
 	ATTRIBUTE_ACCESSORS(ThisClass, Mana)
 	ATTRIBUTE_ACCESSORS(ThisClass, MaxMana)
 private:
-	UPROPERTY()
+	UPROPERTY(ReplicatedUsing=OnRep_Health)
 	FGameplayAttributeData Health;
-	UPROPERTY()
+	UPROPERTY(ReplicatedUsing=OnRep_MaxHealth)
 	FGameplayAttributeData MaxHealth;
-	UPROPERTY()
+	UPROPERTY(ReplicatedUsing=OnRep_Mana)
 	FGameplayAttributeData Mana;
-	UPROPERTY()
+	UPROPERTY(ReplicatedUsing=OnRep_MaxMana)
 	FGameplayAttributeData MaxMana;
+
+	UFUNCTION()
+	void OnRep_Health(const FGameplayAttributeData& OldHealth);
+	UFUNCTION()
+	void OnRep_MaxHealth(const FGameplayAttributeData& OldMaxHealth);
+	UFUNCTION()
+	void OnRep_Mana(const FGameplayAttributeData& OldMana);
+	UFUNCTION()
+	void OnRep_MaxMana(const FGameplayAttributeData& OldMaxMana);
+
+public:
+	
 };

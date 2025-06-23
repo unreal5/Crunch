@@ -11,7 +11,7 @@ public class Crunch : ModuleRules
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore" });
 
 		PrivateDependencyModuleNames.AddRange(new string[]
-			{ "EnhancedInput", "GameplayAbilities", "GameplayTasks", "GameplayTags" });
+			{ "EnhancedInput", "GameplayAbilities", "GameplayTasks", "GameplayTags","Slate", "SlateCore", "UMG" });
 
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
