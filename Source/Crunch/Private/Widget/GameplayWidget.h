@@ -13,10 +13,17 @@ UCLASS()
 class CRUNCH_API UGameplayWidget : public UUserWidget
 {
 	GENERATED_BODY()
+
+protected:
+	virtual void NativeConstruct() override;
+
 private:
 	UPROPERTY(meta=(BindWidget))
 	class UValueGauge* HealthBar;
 
 	UPROPERTY(meta=(BindWidget))
 	class UValueGauge* ManaBar;
+
+	UPROPERTY()
+	class UAbilitySystemComponent* OwnerASC;
 };

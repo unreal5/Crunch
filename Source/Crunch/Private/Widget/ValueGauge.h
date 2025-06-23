@@ -6,6 +6,8 @@
 #include "Blueprint/UserWidget.h"
 #include "ValueGauge.generated.h"
 
+struct FGameplayAttribute;
+class UAbilitySystemComponent;
 /**
  * 
  */
@@ -16,11 +18,13 @@ class CRUNCH_API UValueGauge : public UUserWidget
 
 public:
 	void SetValue(float NewValue, float NewMaxValue);
-
+	void SetAndBoundToGameplayAttribute(UAbilitySystemComponent* ASC, const FGameplayAttribute& Attribute, const FGameplayAttribute& MaxAttribute);
 protected:
 	virtual void NativePreConstruct() override;
 
 private:
+	float CachedValue = 0.0f;
+	float CachedMaxValue = 0.0f;
 	UPROPERTY(EditAnywhere, Category="Visual")
 	FLinearColor BarColor;
 	
