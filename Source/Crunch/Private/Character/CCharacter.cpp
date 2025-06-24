@@ -6,6 +6,7 @@
 #include "Components/WidgetComponent.h"
 #include "GAS/CAbilitySystemComponent.h"
 #include "GAS/CAttributeSet.h"
+#include "Kismet/GameplayStatics.h"
 #include "Widget/OverHeadStatsGauge.h"
 
 // Sets default values
@@ -28,6 +29,11 @@ void ACCharacter::BeginPlay()
 	ConfigureOverHeadStatusWidget();
 }
 
+void ACCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+}
+
 void ACCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
@@ -46,6 +52,7 @@ void ACCharacter::ServerSideInit()
 {
 	CAbilitySystemComponent->InitAbilityActorInfo(this, this);
 	CAbilitySystemComponent->ApplyInitialEffects();
+	CAbilitySystemComponent->GiveInitialAbilities();
 }
 
 void ACCharacter::ClientSideInit()
@@ -68,9 +75,25 @@ void ACCharacter::ConfigureOverHeadStatusWidget()
 		return;
 	}
 	OverHeadWidgetComponent->SetHiddenInGame(false);
-	
+
 	UOverHeadStatsGauge* OverHeadStatsGauge = Cast<UOverHeadStatsGauge>(OverHeadWidgetComponent->GetUserWidgetObject());
 	if (!OverHeadStatsGauge) return;
 
 	OverHeadStatsGauge->ConfigureWithASC(GetAbilitySystemComponent());
+	GetWorldTimerManager().ClearTimer(HeadStatGuageVisibilityUpdateTimerHandle);
+	GetWorldTimerManager().SetTimer(HeadStatGuageVisibilityUpdateTimerHandle, this,
+	                                &ThisClass::UpdateHeadGuageVisibility, HeadStatGaugeVisibilityCheckUpdageGap,
+	                                true);
+}
+
+void ACCharacter::UpdateHeadGuageVisibility()
+{
+	APawn* LocalPlayerPawn = UGameplayStatics::GetPlayerPawn(this, 0);
+	if (LocalPlayerPawn)
+	{
+		float DistSquared = FVector::DistSquared(LocalPlayerPawn->GetActorLocation(), GetActorLocation());
+
+		bool bHiddenInGame = DistSquared > HeadStatGaugeVisibilityRangeSquared;
+		OverHeadWidgetComponent->SetHiddenInGame(bHiddenInGame);
+	}
 }

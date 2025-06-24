@@ -15,6 +15,7 @@ class CRUNCH_API ACCharacter : public ACharacter, public IAbilitySystemInterface
 public:
 	ACCharacter();
 	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaTime) override;
 	virtual void PossessedBy(AController* NewController) override;
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
@@ -23,7 +24,7 @@ public:
 	bool IsLocallyControlledByPlayer() const;
 
 private:
-	UPROPERTY(VisibleDefaultsOnly, Category="Gameplay Ability")
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category="Gameplay Ability", meta=(AllowPrivateAccess="true"))
 	class UCAbilitySystemComponent* CAbilitySystemComponent;
 	UPROPERTY()
 	class UCAttributeSet* CAttributeSet;
@@ -33,4 +34,13 @@ private:
 	class UWidgetComponent* OverHeadWidgetComponent;
 
 	void ConfigureOverHeadStatusWidget();
+
+	UPROPERTY(EditDefaultsOnly, Category="GUI")
+	float HeadStatGaugeVisibilityCheckUpdageGap = 1.0f;
+	UPROPERTY(EditDefaultsOnly, Category="GUI")
+	float HeadStatGaugeVisibilityRangeSquared = 1000000.0f;
+	
+	FTimerHandle HeadStatGuageVisibilityUpdateTimerHandle;
+	UFUNCTION()
+	void UpdateHeadGuageVisibility();
 };
