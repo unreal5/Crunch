@@ -3,6 +3,15 @@
 
 #include "GA_Combo.h"
 
+#include "CAbilitySystemStatics.h"
+#include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
+
+UGA_Combo::UGA_Combo()
+{
+	AbilityTags.AddTag(CAbilitySystemStatics::Ability_BasicAttack);
+	BlockAbilitiesWithTag.AddTag(CAbilitySystemStatics::Ability_BasicAttack);
+}
+
 void UGA_Combo::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
                                 const FGameplayAbilityActivationInfo ActivationInfo,
                                 const FGameplayEventData* TriggerEventData)
@@ -17,6 +26,16 @@ void UGA_Combo::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const F
 		return;
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("GA_Combo::ActivateAbility - Ability activated successfully."));
+	if (HasAuthorityOrPredictionKey(ActorInfo, &ActivationInfo))
+	{
+		auto PlayComboMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
+			this, FName("PlayComboMontage"), ComboMontage, 1.0f, FName("ComboFinished"));
+		PlayComboMontageTask->OnBlendOut.AddDynamic(this, &UGA_Combo::K2_EndAbility);
+		PlayComboMontageTask->OnCancelled.AddDynamic(this, &UGA_Combo::K2_EndAbility);
+		PlayComboMontageTask->OnCompleted.AddDynamic(this, &UGA_Combo::K2_EndAbility);
+		PlayComboMontageTask->OnInterrupted.AddDynamic(this, &UGA_Combo::K2_EndAbility);
+
+		PlayComboMontageTask->ReadyForActivation();
+	}
 	//Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 }
