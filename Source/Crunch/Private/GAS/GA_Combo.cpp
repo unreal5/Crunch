@@ -5,6 +5,7 @@
 
 #include "CAbilitySystemStatics.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
+#include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 
 UGA_Combo::UGA_Combo()
 {
@@ -26,16 +27,35 @@ void UGA_Combo::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const F
 		return;
 	}
 
-	if (HasAuthorityOrPredictionKey(ActorInfo, &ActivationInfo))
-	{
-		auto PlayComboMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
-			this, FName("PlayComboMontage"), ComboMontage, 1.0f, FName("ComboFinished"));
-		PlayComboMontageTask->OnBlendOut.AddDynamic(this, &UGA_Combo::K2_EndAbility);
-		PlayComboMontageTask->OnCancelled.AddDynamic(this, &UGA_Combo::K2_EndAbility);
-		PlayComboMontageTask->OnCompleted.AddDynamic(this, &UGA_Combo::K2_EndAbility);
-		PlayComboMontageTask->OnInterrupted.AddDynamic(this, &UGA_Combo::K2_EndAbility);
+	if (!HasAuthorityOrPredictionKey(ActorInfo, &ActivationInfo)) return;
 
-		PlayComboMontageTask->ReadyForActivation();
-	}
+	auto PlayComboMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
+		this, FName("PlayComboMontage"), ComboMontage, 1.0f, FName("ComboFinished"));
+	//PlayComboMontageTask->OnBlendOut.AddDynamic(this, &UGA_Combo::K2_EndAbility);
+	//PlayComboMontageTask->OnCancelled.AddDynamic(this, &UGA_Combo::K2_EndAbility);
+	PlayComboMontageTask->OnCompleted.AddDynamic(this, &UGA_Combo::K2_EndAbility);
+	//PlayComboMontageTask->OnInterrupted.AddDynamic(this, &UGA_Combo::K2_EndAbility);
+
+	PlayComboMontageTask->ReadyForActivation();
+
+	// 给出Tag的父Tag，子类的也符合条件；即等待所有Ability.Combo.Change.*的事件。
+	auto WaitForComboChangeEventTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
+		this, AbilityComboChangeTag, nullptr, false, false);
+	WaitForComboChangeEventTask->EventReceived.AddDynamic(this, &UGA_Combo::ComboChangedEventReceived);
+	WaitForComboChangeEventTask->ReadyForActivation();
+
 	//Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+}
+
+void UGA_Combo::ComboChangedEventReceived(FGameplayEventData Payload)
+{
+	const FGameplayTag EventTag = Payload.EventTag;
+	if (EventTag.MatchesTagExact(AbilityComboChangeEndTag))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("收到结束连招的事件"));
+		NextComboName = NAME_None;
+		return;
+	}
+	NextComboName = EventTag.GetTagLeafName();
+	UE_LOG(LogTemp, Warning, TEXT("ComboChangedEventReceived: %s"), *NextComboName.ToString());
 }
