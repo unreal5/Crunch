@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "InputMappingContext.h"
 #include "Character/CCharacter.h"
+#include "GAS/CGameplayAbilityTypes.h"
 #include "CPlayerCharacter.generated.h"
 
 UCLASS()
@@ -29,7 +30,9 @@ private:
 	UInputAction* LookInputAction;
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	UInputAction* MoveInputAction;
-
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	TMap<ECAbilityInputID, UInputAction*> GameplayAbilityInputActions;
+	
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	const UInputMappingContext* GameplayInputMappingContext;
 	

@@ -4,7 +4,6 @@
 #include "CAbilitySystemComponent.h"
 
 
-
 void UCAbilitySystemComponent::ApplyInitialEffects()
 {
 	// 只在服务器上应用初始效果
@@ -22,19 +21,19 @@ void UCAbilitySystemComponent::ApplyInitialEffects()
 void UCAbilitySystemComponent::GiveInitialAbilities()
 {
 	if (!GetOwner() || !GetOwner()->HasAuthority()) return;
-	for (TSubclassOf<UGameplayAbility>& AbilityClass : Abilities)
+	for (auto& [InputID, AbilityClass] : Abilities)
 	{
 		if (AbilityClass)
 		{
-			GiveAbility(FGameplayAbilitySpec(AbilityClass, 0.0f, INDEX_NONE, nullptr));
+			GiveAbility(FGameplayAbilitySpec(AbilityClass, 0.0f, static_cast<int32>(InputID), nullptr));
 		}
 	}
 
-	for (TSubclassOf<UGameplayAbility>& AbilityClass : BasicAbilities)
+	for (auto& [InputID, AbilityClass] : BasicAbilities)
 	{
 		if (AbilityClass)
 		{
-			GiveAbility(FGameplayAbilitySpec(AbilityClass, 1.0f, INDEX_NONE, nullptr));
+			GiveAbility(FGameplayAbilitySpec(AbilityClass, 1.0f, static_cast<int32>(InputID), nullptr));
 		}
 	}
 }

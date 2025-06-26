@@ -1,5 +1,6 @@
 #include "CPlayerCharacter.h"
 
+#include "AbilitySystemComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Camera/CameraComponent.h"
@@ -50,6 +51,25 @@ void ACPlayerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerI
 	IC->BindAction(JumpInputAction, ETriggerEvent::Triggered, this, &ACharacter::Jump);
 	IC->BindAction(LookInputAction, ETriggerEvent::Triggered, this, &ThisClass::HandleLookInput);
 	IC->BindAction(MoveInputAction, ETriggerEvent::Triggered, this, &ACPlayerCharacter::HandleMoveInput);
+
+	// 绑定游戏能力输入
+	// Lambda表达式第一个参数似乎必须是const FInputActionValue&，待确认。
+	auto InputExpression = [this](const FInputActionValue& InputActionValue, ECAbilityInputID InputID)
+	{
+		auto GAS = GetAbilitySystemComponent();
+		if (!GAS) return;
+
+		int32 InputIDValue = static_cast<int32>(InputID);
+		const bool bIsPressed = InputActionValue.Get<bool>();
+		bIsPressed ? GAS->AbilityLocalInputPressed(InputIDValue) : GAS->AbilityLocalInputReleased(InputIDValue);
+	};
+	for (auto& [InputID, InputAction] : GameplayAbilityInputActions)
+	{
+		if (InputAction)
+		{
+			IC->BindActionValueLambda(InputAction, ETriggerEvent::Triggered, InputExpression, InputID);
+		}
+	}
 }
 
 void ACPlayerCharacter::HandleLookInput(const FInputActionValue& InputActionValue)
