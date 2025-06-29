@@ -2,3 +2,11 @@
 
 
 #include "CGameplayAbility.h"
+
+UAnimInstance* UCGameplayAbility::GetOwnerAnimInstance() const
+{
+	if (auto OwnerSkeletalMeshComp = GetOwningComponentFromActorInfo()->GetOwner()->FindComponentByClass<USkeletalMeshComponent>()) {
+		return OwnerSkeletalMeshComp->GetAnimInstance();
+	}
+	return nullptr;
+}
