@@ -80,9 +80,8 @@ void UGA_Combo::TryCommitCombo()
 	if (NextComboName == NAME_None) return;
 
 	UAnimInstance* OwnerAnimInstance = GetOwnerAnimInstance();
-	if (!OwnerAnimInstance)
-	{
-		return;
-	}
-	OwnerAnimInstance->Montage_SetNextSection(OwnerAnimInstance->Montage_GetCurrentSection(ComboMontage), NextComboName, ComboMontage);
+	if (!OwnerAnimInstance) return;
+
+	OwnerAnimInstance->Montage_SetNextSection(OwnerAnimInstance->Montage_GetCurrentSection(ComboMontage), NextComboName,
+	                                          ComboMontage);
 }
