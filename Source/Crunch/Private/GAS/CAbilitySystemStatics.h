@@ -11,4 +11,6 @@ namespace CAbilitySystemStatics
 	CRUNCH_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Combo_Change_Combo03);
 	CRUNCH_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Combo_Change_Combo04);
 	CRUNCH_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Combo_Change_End);
+
+	CRUNCH_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Combo_Damage);
 };
